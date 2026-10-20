@@ -1,0 +1,13 @@
+{
+  "positive": [
+    "EF Core slow queries on varchar columns",
+    "nvarchar parameter against varchar indexed column",
+    "CONVERT_IMPLICIT on EF Core string predicate",
+    "Review MaxLength and Unicode mappings for SQL Server"
+  ],
+  "negative": [
+    "Diagnose a PostgreSQL query plan",
+    "Change SQL Server collation for the entire database",
+    "Review unrelated EF Core cascade delete behavior"
+  ]
+}

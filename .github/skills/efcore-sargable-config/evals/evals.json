@@ -1,0 +1,16 @@
+{
+  "evals": [
+    {
+      "prompt": "Our EF Core Customer.Email property has no string configuration, but dbo.Customers.Email is varchar(256) with an index. A query comparing Email is slow. Find the likely mapping problem, suggest the smallest fix, and say how to confirm it.",
+      "expected_output": "Checks effective EF mapping and actual schema before recommending IsUnicode(false) and HasMaxLength(256) at the owning mapping; distinguishes suspected mismatch from confirmed column-side CONVERT_IMPLICIT and verifies executed parameter metadata and actual plan before claiming a scan."
+    },
+    {
+      "prompt": "Review our EF Core model for missing MaxLength and Unicode annotations. We can inspect source but do not have access to SQL Server. What can we safely report or enforce in CI?",
+      "expected_output": "Inspects effective configuration, reports candidates rather than proven plan regressions, identifies the missing schema/plan evidence, and proposes a scoped model-metadata guardrail or cautious analyzer with exceptions for intentional long text and Unicode."
+    },
+    {
+      "prompt": "A teammate wants ConfigureConventions to make every string varchar(256) so our SQL Server query will seek. Some columns store multilingual text as nvarchar(400), and the slow query uses LIKE '%term'. Is the global change safe?",
+      "expected_output": "Rejects the blanket varchar change and arbitrary length; preserves real Unicode data, calls out global defaults affecting keys/foreign keys and exceptions, notes the leading wildcard cannot become a normal seek via mapping alone, and recommends targeted validation."
+    }
+  ]
+}
