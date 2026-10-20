@@ -1,6 +1,6 @@
 # efcore-sargable-config
 
-An agent skill for finding and fixing EF Core SQL Server string mappings that may cause non-sargable predicates. It separates missing configuration from a proven `varchar`/`nvarchar` mismatch and checks the actual query plan before claiming an Index Scan.
+An agent skill for finding why an indexed EF Core/SQL Server lookup scans: varchar/nvarchar and MaxLength mapping mismatches, and non-sargable predicates (functions, arithmetic, conversions, leading wildcards, OR across columns, ISNULL/COALESCE). Rules ESC001-ESC012 are listed in [rules.md](.github/skills/efcore-sargable-config/references/rules.md); every finding uses a fixed output format and is labelled confirmed, candidate, other-cause or intentional-exception. It separates missing configuration from a proven `varchar`/`nvarchar` mismatch and checks the actual query plan before claiming an Index Scan.
 
 ## Use the skill
 
@@ -40,3 +40,10 @@ Open a different EF Core project in VS Code and start a new Copilot Agent chat. 
 3. Record pass/fail and the missing or incorrect behavior for each case. If an answer claims a proven Scan without a plan, changes Unicode columns blindly, or applies a default length without schema evidence, mark it as a failure and refine the skill before rerunning the case.
 
 [triggers.json](.github/skills/efcore-sargable-config/evals/triggers.json) lists example prompts that should or should not lead an agent to use this skill. Test them in fresh chats to check skill selection separately from answer quality. This file is an optional test fixture, not a registered trigger mechanism or a CI integration. The `description` in `SKILL.md` is the discovery surface for automatic skill selection.
+## Test harness
+
+`samples/` holds seeded BAD, GOOD and clean C# cases (one per rule), `schema.json` (simulated SQL Server columns) and `expected-findings.json` (scoring manifest generated from the `// BAD` / `// GOOD` / `// NEGATIVE` markers). Two test sets:
+
+- **Unit (no Docker, ~3 s):** `dotnet test EfSargable.slnx --filter "Category!=Integration"` - effective EF mappings, generated SQL, model-vs-schema guardrail, manifest markers.
+- **Integration (Docker required):** `dotnet test tests/EfSargable.IntegrationTests` - starts one `mcr.microsoft.com/mssql/server:2022-latest` container per run (Testcontainers.MsSql), builds the schema from `schema.json`, seeds 50k rows, runs every BAD/GOOD query with `SET STATISTICS XML/IO ON` and asserts the actual plans (CONVERT_IMPLICIT, PlanAffectingConvert, Seek vs Scan, logical reads, row counts, collation). `ObservationTests` writes `samples/plan-observations.md` with the raw result for every case.
+- **Everything:** `dotnet test EfSargable.slnx` (Docker must be running).

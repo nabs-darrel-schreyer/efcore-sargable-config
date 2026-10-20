@@ -1,0 +1,13 @@
+{
+  "_comment": "Simulated EXISTING SQL Server schema (what sys.columns would return). Lengths in characters. This is the 'intended column' the skill compares against.",
+  "columns": [
+    { "table": "dbo.Customers",    "column": "Email",     "type": "varchar",  "length": 256,  "indexed": true },
+    { "table": "dbo.Customers",    "column": "Notes",     "type": "nvarchar", "length": -1,   "indexed": false, "exception": "intentional long Unicode text, unindexed" },
+    { "table": "dbo.Products",     "column": "Sku",       "type": "varchar",  "length": 32,   "indexed": true },
+    { "table": "dbo.Products",     "column": "Code",      "type": "varchar",  "length": 16,   "indexed": true },
+    { "table": "dbo.Orders",       "column": "Reference", "type": "varchar",  "length": 20,   "indexed": true },
+    { "table": "dbo.Translations", "column": "Key",       "type": "varchar",  "length": 256,  "indexed": true },
+    { "table": "dbo.Translations", "column": "Text",      "type": "nvarchar", "length": 400,  "indexed": true },
+    { "table": "dbo.Accounts",     "column": "AccountNumber", "type": "varchar", "length": 20, "indexed": true }
+  ]
+}

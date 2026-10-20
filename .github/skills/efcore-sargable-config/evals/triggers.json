@@ -3,11 +3,15 @@
     "EF Core slow queries on varchar columns",
     "nvarchar parameter against varchar indexed column",
     "CONVERT_IMPLICIT on EF Core string predicate",
-    "Review MaxLength and Unicode mappings for SQL Server"
+    "Review MaxLength and Unicode mappings for SQL Server",
+    "Why is my index not being used for WHERE YEAR(OrderDate) = 2025",
+    "Index scan instead of seek on an EF Core query with ToLower",
+    "Is this LINQ predicate sargable?"
   ],
   "negative": [
     "Diagnose a PostgreSQL query plan",
     "Change SQL Server collation for the entire database",
-    "Review unrelated EF Core cascade delete behavior"
+    "Review unrelated EF Core cascade delete behavior",
+    "Fix N+1 queries and add AsNoTracking in EF Core"
   ]
 }

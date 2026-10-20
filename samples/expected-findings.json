@@ -1,0 +1,342 @@
+{
+    "_comment":  "Generated from // BAD / // GOOD / // NEGATIVE markers. Score: TP = flag on should_flag=true line with matching rule id (and label); FN = missed; FP = any flag on should_flag=false. Rule catalogue: .github/skills/efcore-sargable-config/references/rules.md",
+    "schema":  "samples/EfSargable.Sample/schema.json",
+    "findings":  [
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadConventionDbContext.cs",
+                         "line":  13,
+                         "rule":  "ESC004-blanket-convention",
+                         "should_flag":  true,
+                         "label":  "candidate",
+                         "note":  "(forces real Unicode Text nvarchar(400) to varchar(256))"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadConventionDbContext.cs",
+                         "line":  21,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "convention gives varchar(256) which matches schema - must NOT be flagged"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadDbContext.cs",
+                         "line":  18,
+                         "rule":  "ESC001-unicode-mismatch",
+                         "should_flag":  true,
+                         "label":  "candidate",
+                         "note":  "(no config + index -\u003e nvarchar(450); column is varchar(256) indexed)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadDbContext.cs",
+                         "line":  20,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "intentional-exception (nvarchar(max) matches schema, unindexed long text)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadDbContext.cs",
+                         "line":  26,
+                         "rule":  "ESC002-maxlength-without-unicode",
+                         "should_flag":  true,
+                         "label":  "candidate",
+                         "note":  "(HasMaxLength alone -\u003e nvarchar(32); column varchar(32))"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadDbContext.cs",
+                         "line":  28,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "store type alone supplies varchar(16) - must NOT be flagged"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadDbContext.cs",
+                         "line":  35,
+                         "rule":  "ESC003-length-mismatch",
+                         "should_flag":  true,
+                         "label":  "candidate",
+                         "note":  "(varchar(max) vs varchar(20); NOT a Unicode conversion)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  11,
+                         "rule":  "ESC005-function-on-column",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(DATEPART(year, OrderDate) = 2025)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  14,
+                         "rule":  "ESC005-function-on-column",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(UPPER(LastName); pointless on a CI collation)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  17,
+                         "rule":  "ESC006-leading-wildcard",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(LIKE \u0027%son\u0027)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  20,
+                         "rule":  "ESC006-leading-wildcard",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(LIKE \u0027%son%\u0027)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  23,
+                         "rule":  "ESC008-arithmetic-on-column",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(DATEADD(day, 30, CreatedAt))"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  26,
+                         "rule":  "ESC008-arithmetic-on-column",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(Price * 1.1 \u003e 110)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  29,
+                         "rule":  "ESC009-implicit-conversion",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(varchar column converted to int)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  32,
+                         "rule":  "ESC010-or-across-columns",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  ""
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  35,
+                         "rule":  "ESC011-isnull-on-column",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(COALESCE(Status, \u0027New\u0027))"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadPredicates.cs",
+                         "line":  38,
+                         "rule":  "ESC012-closed-date-range",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(misses rows after midnight 31 Dec)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadQueries.cs",
+                         "line":  11,
+                         "rule":  "ESC005-function-on-column",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(LOWER([c].[Email]) - mapping fix cannot help)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadQueries.cs",
+                         "line":  14,
+                         "rule":  "ESC005-function-on-column",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(SUBSTRING on column)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Bad/BadQueries.cs",
+                         "line":  17,
+                         "rule":  "ESC006-leading-wildcard",
+                         "should_flag":  true,
+                         "label":  "other-cause",
+                         "note":  "(LIKE \u0027%term\u0027 - mapping fix cannot make it a seek)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodDbContext.cs",
+                         "line":  19,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC001"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodDbContext.cs",
+                         "line":  21,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "intentional-exception"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodDbContext.cs",
+                         "line":  27,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC002"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodDbContext.cs",
+                         "line":  29,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "store type alone is sufficient"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodDbContext.cs",
+                         "line":  36,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC003"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodDbContext.cs",
+                         "line":  43,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "scoped mapping instead of ESC004 blanket convention"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodDbContext.cs",
+                         "line":  45,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "real Unicode nvarchar(400) - must stay Unicode"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  11,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC005 and ESC012"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  14,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC005 (CI collation already ignores case)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  17,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC006 (LIKE \u0027nos%\u0027 on indexed REVERSE computed column)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  20,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "LIKE \u0027Smi%\u0027 is sargable"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  23,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC008"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  26,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC008"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  29,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC009"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  32,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC010"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  35,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC011"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  38,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "CAST(dt AS date) can still seek (optimiser rewrite) - mention, don\u0027t flag"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodPredicates.cs",
+                         "line":  42,
+                         "rule":  "ESC007-reverse-unicode",
+                         "should_flag":  false,
+                         "kind":  "ESC007-reverse-unicode",
+                         "note":  null
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodQueries.cs",
+                         "line":  8,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC005 (normalise the parameter; rely on CI collation)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodQueries.cs",
+                         "line":  11,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC005 (LIKE \u0027abc%\u0027 is seekable)"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/GoodQueries.cs",
+                         "line":  14,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "NEGATIVE",
+                         "note":  "ESC006 has no mapping fix; suffix search needs a reversed computed column / full-text"
+                     },
+                     {
+                         "file":  "samples/EfSargable.Sample/Good/PredicateDbContext.cs",
+                         "line":  21,
+                         "rule":  "none",
+                         "should_flag":  false,
+                         "kind":  "GOOD",
+                         "note":  "fixes ESC006 (indexed REVERSE computed column)"
+                     }
+                 ]
+}

@@ -1,21 +1,28 @@
-# SQL Server String Predicate Patterns
+# SQL Server Plan Patterns
 
-## Strong evidence of a mapping problem
+## Mapping mismatch (ESC001)
 
-- Indexed `varchar(n)` column, EF `nvarchar` parameter, and a plan predicate like `CONVERT_IMPLICIT(nvarchar(...), [t].[Code], 0) = @__code_0`. The conversion is on the column; confirm it in the actual plan before assigning blame for a Scan.
-- The reverse type mismatch may convert the parameter instead; inspect the actual plan rather than inferring conversion direction from the declared types alone.
-- `PlanAffectingConvert` warnings are a lead, not a substitute for inspecting the indexed predicate, index choice, cardinality, and logical reads.
+- Indexed `varchar(n)` column, `nvarchar` parameter, plan predicate `CONVERT_IMPLICIT(nvarchar(...), [t].[Email], 0) = @email`. nvarchar has higher data type precedence, so the column is converted.
+- **SQL collations** (`SQL_Latin1_General_CP1_CI_AS`, default for US English installs and Azure SQL Database): generally no seek - you get the scan.
+- **Windows collations** (`Latin1_General_CI_AS`): often still a "dynamic seek" (`GetRangeThroughConvert`) with a residual predicate - better than a scan, still extra reads and worse estimates.
+- **Reverse case** (ESC007): `nvarchar` column, `varchar` parameter - the parameter is converted; harmless.
+- Bad estimates compound parameter sniffing. Cost grows with the table, not the result set, so it passes tests on small databases.
 
-## Other reasons a query may scan
+## Length (ESC003)
 
-- `WHERE LOWER([t].[Code]) = @code` or `WHERE LEFT([t].[Code], 3) = @prefix` applies a function to the column. A mapping change will not remove that expression.
-- `LIKE '%abc'` has a leading wildcard, unlike `LIKE 'abc%'`. Parameter collation, computed columns, and full-text requirements may also matter.
-- A scan may be optimal for low selectivity, a small table, a covering index, or stale/missing statistics. A Seek can still read many rows.
+`MaxLength` is characters; `sys.columns.max_length` is bytes. Parameters are declared at the provider cap (`nvarchar(4000)` / `varchar(8000)`) on purpose to avoid plan cache fragmentation - not a disaster on its own. A length mismatch alone does not cause a column-side conversion.
 
-## Collation caveat
+## Non-sargable shapes (other-cause)
 
-Legacy `SQL_` collations and Windows collations can produce different plans for `varchar` column / `nvarchar` parameter comparisons. Neither guarantees a particular plan. Do not change collation or assert an Index Scan without measuring the target database.
+`WHERE YEAR(OrderDate) = 2025`, `LEFT(Code,3) = 'ABC'`, `UPPER(Email) = @Email`, `DATEADD(day,30,CreatedAt) > SYSDATETIME()`, `Price * 1.1 > 110`, `AccountNumber = 12345`, `LIKE '%son'`, `FirstName = @Name OR LastName = @Name`, `ISNULL(Status,'New') = 'New'`. Typically Index Scan with a residual predicate. Exception: `CAST(dt AS date) = @d` can seek via an optimiser rewrite (estimates may be off).
 
-## Length caveat
+## Verified on SQL Server 2022 (50k rows, test harness)
 
-SQL Server `nvarchar(n)` and `varchar(n)` use different storage/length semantics; EF `MaxLength` specifies characters, while SQL Server catalog `sys.columns.max_length` is bytes (`-1` means `max`). A length mismatch can affect parameter declarations, index limits, and plan quality without necessarily causing a column-side conversion.
+- A **seek is not proof of sargability**. EF parameterises `EndsWith(term)`/`Contains(term)` as `LIKE @p`; the plan shows an Index Seek (LikeRangeStart/LikeRangeEnd) that covers the whole index, with the same logical reads as a scan. Judge ESC006 by Seek Predicates bounds and reads, not the operator name.
+- ESC010: with an index on each column the optimiser **did** combine two seeks itself (index union, Merge Join) - same reads as the UNION rewrite. Report ESC010 as a candidate and confirm with the plan; the UNION rewrite is not always a gain.
+- Windows collation: dynamic seek with `GetRangeThroughConvert` confirmed, but no `PlanAffectingConvert` Cardinality Estimate warning appeared for a simple equality - absence of the warning does not rule out the conversion.
+- ESC004: a blanket `AreUnicode(false)` sends a varchar parameter to a real nvarchar column. It still seeks (ESC007 shape), but non-Latin values are converted to `?` and the query returns **wrong results** (0 rows instead of 1).
+
+## Not every scan is a bug
+
+A scan may be optimal for low selectivity, a small table, or stale statistics. Investigate when a **selective** query scans.

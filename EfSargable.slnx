@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/EfSargable.Sample/EfSargable.Sample.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EfSargable.IntegrationTests/EfSargable.IntegrationTests.csproj" />
+    <Project Path="tests/EfSargable.Tests/EfSargable.Tests.csproj" />
+  </Folder>
+</Solution>

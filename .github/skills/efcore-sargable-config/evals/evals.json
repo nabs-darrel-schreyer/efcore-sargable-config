@@ -2,15 +2,27 @@
   "evals": [
     {
       "prompt": "Our EF Core Customer.Email property has no string configuration, but dbo.Customers.Email is varchar(256) with an index. A query comparing Email is slow. Find the likely mapping problem, suggest the smallest fix, and say how to confirm it.",
-      "expected_output": "Checks effective EF mapping and actual schema before recommending IsUnicode(false) and HasMaxLength(256) at the owning mapping; distinguishes suspected mismatch from confirmed column-side CONVERT_IMPLICIT and verifies executed parameter metadata and actual plan before claiming a scan."
+      "expected_output": "Reports ESC001-unicode-mismatch in the fixed output format; checks effective mapping (nvarchar(450) because indexed) and schema; recommends IsUnicode(false)+HasMaxLength(256); labels candidate until executed parameters and an actual plan show column-side CONVERT_IMPLICIT; mentions collation (SQL_ vs Windows) affects scan vs dynamic seek."
     },
     {
       "prompt": "Review our EF Core model for missing MaxLength and Unicode annotations. We can inspect source but do not have access to SQL Server. What can we safely report or enforce in CI?",
-      "expected_output": "Inspects effective configuration, reports candidates rather than proven plan regressions, identifies the missing schema/plan evidence, and proposes a scoped model-metadata guardrail or cautious analyzer with exceptions for intentional long text and Unicode."
+      "expected_output": "Reports candidates only (ESC001-ESC003), lists missing schema/plan evidence, proposes a model-metadata test that diffs GetColumnType() with INFORMATION_SCHEMA.COLUMNS, with exceptions for intentional long or Unicode text."
     },
     {
       "prompt": "A teammate wants ConfigureConventions to make every string varchar(256) so our SQL Server query will seek. Some columns store multilingual text as nvarchar(400), and the slow query uses LIKE '%term'. Is the global change safe?",
-      "expected_output": "Rejects the blanket varchar change and arbitrary length; preserves real Unicode data, calls out global defaults affecting keys/foreign keys and exceptions, notes the leading wildcard cannot become a normal seek via mapping alone, and recommends targeted validation."
+      "expected_output": "Rejects the blanket change (ESC004): preserves Unicode, notes conventions override annotations and hit FKs, requires Fluent overrides; labels the LIKE '%term' as ESC006 other-cause that mapping cannot fix and suggests full-text or a REVERSE computed column."
+    },
+    {
+      "prompt": "This EF Core query is slow even though OrderDate is indexed: db.Orders.Where(o => o.OrderDate.Year == 2025). Also, a colleague rewrote another as o.OrderDate <= new DateTime(2025,12,31). What's wrong?",
+      "expected_output": "Flags ESC005 (YEAR on column, other-cause) with a half-open range fix, and ESC012 (closed end date misses rows after midnight) as a correctness issue; does not propose a mapping change."
+    },
+    {
+      "prompt": "Review these predicates: p.Price * 1.1m > 110, o.CreatedAt.AddDays(30) > DateTime.UtcNow, (s.Status ?? \"New\") == \"New\", c.FirstName == name || c.LastName == name, Convert.ToInt32(a.AccountNumber) == 12345 where AccountNumber is varchar(20).",
+      "expected_output": "Flags ESC008 (x2), ESC011, ESC010, ESC009 as other-cause with the article rewrites (Price > 100, CreatedAt > now.AddDays(-30), Status == \"New\" || Status == null, UNION, compare with '12345'); warns to check rewrite equivalence; asks for an actual plan before claiming scans."
+    },
+    {
+      "prompt": "Our Translations.Text column is nvarchar(400) and our C# sends a varchar parameter for it. Is this the varchar/nvarchar index killer?",
+      "expected_output": "Identifies ESC007 reverse case: the parameter is converted, not the column, so it is harmless; labels intentional-exception / no fix needed."
     }
   ]
 }
