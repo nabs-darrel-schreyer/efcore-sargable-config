@@ -23,6 +23,10 @@
     {
       "prompt": "Our Translations.Text column is nvarchar(400) and our C# sends a varchar parameter for it. Is this the varchar/nvarchar index killer?",
       "expected_output": "Identifies ESC007 reverse case: the parameter is converted, not the column, so it is harmless; labels intentional-exception / no fix needed."
+    },
+    {
+      "prompt": "Review samples/EfSargable.Sample against samples/EfSargable.Sample/schema.json and give me a report I can share with the team.",
+      "expected_output": "Writes sargable-report.md following references/report-template.md: executive summary with counts by label and severity and top 3 fixes, findings table, per-finding sections with before/after code and verification steps, intentional exceptions (ESC007, unindexed Notes), checklist, next steps, and a machine-readable appendix. ESC004 and ESC012 are marked Correctness: yes and severity high and listed first. Summarises in chat with the report path."
     }
   ]
 }

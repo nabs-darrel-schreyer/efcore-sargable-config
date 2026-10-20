@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 - 2026-10-20
+
+- Add `references/report-template.md`: human-readable Markdown report (executive summary, findings table, per-finding before/after and verification, exceptions, checklist, next steps, machine-readable appendix).
+- SKILL.md: write the report to `sargable-report.md` and summarise in chat; add `Severity` and `Correctness` lines to the per-finding block; severity guidance; correctness findings (ESC004, ESC012, truncating ESC003, failing ESC009) listed first.
+- Add eval 7 (shareable report).
+
 ## 0.2.0 - 2026-10-20
 
 - Add stable rule ids ESC001-ESC012 (`references/rules.md`) covering both articles: varchar/nvarchar mismatches and non-sargable predicates.
